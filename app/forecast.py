@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import datetime as dt
 import math
+import os
 
 import numpy as np
 import pandas as pd
@@ -50,12 +51,15 @@ class Forecaster:
 
         self.history = history
         X = history[FEATURES]
+        # Sentry showed predict() re-attending over every history row on each request (~3.5 s).
+        # fit_with_cache computes the history's attention state once at fit time.
+        self.fit_mode = os.getenv("TABPFN_FIT_MODE", "fit_with_cache")
         # log-duration: durations are right-skewed; TabPFN is happier on the log scale
-        self.reg = TabPFNRegressor().fit(X, np.log1p(history["actual_min"]))
+        self.reg = TabPFNRegressor(fit_mode=self.fit_mode).fit(X, np.log1p(history["actual_min"]))
         self.clf = None
         y = history.get("done_same_day")
         if y is not None and y.nunique() == 2:
-            self.clf = TabPFNClassifier().fit(X, y)
+            self.clf = TabPFNClassifier(fit_mode=self.fit_mode).fit(X, y)
         self.overrun = float(np.nanmedian(history["actual_min"] / history["guess_min"]))
 
     def predict(self, rows: pd.DataFrame) -> dict:

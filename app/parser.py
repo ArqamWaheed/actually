@@ -80,6 +80,7 @@ class TinkerParser:
     def __init__(self, base_model: str, model_path: str | None = None, shots=None):
         import tinker
 
+        self.label = "actually-lora (Qwen3.5-4B)" if model_path else base_model
         sc = tinker.ServiceClient()
         self.client = sc.create_sampling_client(base_model=base_model, model_path=model_path)
         self.tok = self.client.get_tokenizer()
@@ -88,13 +89,23 @@ class TinkerParser:
     def parse(self, note: str) -> ParseResult:
         import tinker
 
+        import sentry_sdk
+
         ids = render_prompt(self.tok, messages(note, self.shots))
         t0 = time.perf_counter()
-        res = self.client.sample(
-            prompt=tinker.types.ModelInput.from_ints(ids), num_samples=1,
-            sampling_params=tinker.types.SamplingParams(max_tokens=900, temperature=0.0, stop=MODEL_STOP),
-        ).result()
-        toks = res.sequences[0].tokens
+        with sentry_sdk.start_span(op="gen_ai.chat", name=f"chat {self.label}") as span:
+            span.set_data("gen_ai.operation.name", "chat")
+            span.set_data("gen_ai.system", "tinker")
+            span.set_data("gen_ai.request.model", self.label)
+            span.set_data("gen_ai.request.temperature", 0.0)
+            res = self.client.sample(
+                prompt=tinker.types.ModelInput.from_ints(ids), num_samples=1,
+                sampling_params=tinker.types.SamplingParams(max_tokens=900, temperature=0.0, stop=MODEL_STOP),
+            ).result()
+            toks = res.sequences[0].tokens
+            span.set_data("gen_ai.usage.input_tokens", len(ids))
+            span.set_data("gen_ai.usage.output_tokens", len(toks))
+            span.set_data("gen_ai.usage.total_tokens", len(ids) + len(toks))
         raw = self.tok.decode(toks, skip_special_tokens=True)
         tl = to_tasklist(raw)
         return ParseResult(tl, raw, time.perf_counter() - t0, tl is not None, len(toks))

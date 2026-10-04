@@ -4,6 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
+import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
@@ -74,6 +75,7 @@ def plan(body: DumpIn, x_passphrase: str | None = Header(default=None)):
             fc = forecaster(body.profile, len(db.logged_rows(body.profile)))
             rows = task_rows(tasks)
             pred = fc.predict(rows)
+            sentry_sdk.set_tag("tabpfn.fit_mode", fc.fit_mode)
         forecasts = [
             Forecast(title=t.title, kind=t.kind, guess_min=t.guess_min,
                      p50_min=round(float(pred["p50"][i]), 1), p10_min=round(float(pred["p10"][i]), 1),

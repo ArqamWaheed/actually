@@ -1,0 +1,10 @@
+{
+  "fit_preprocessors": {
+    "fit_s": 2.5,
+    "predict_p50_s": 2.43
+  },
+  "fit_with_cache": {
+    "fit_s": 3.43,
+    "predict_p50_s": 0.27
+  }
+}
