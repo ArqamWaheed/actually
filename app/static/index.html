@@ -1,1 +1,229 @@
-<!doctype html><meta charset="utf-8"><title>Actually</title><p>UI coming.</p>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actually</title>
+<meta name="description" content="How long will it actually take you? Brain-dump your day; get real durations from your own history.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL@-15..0,300..900,0..1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF0FB; --panel:#FFFFFF; --ink:#1F2347; --soft:#5B6190;
+  --guess:#C3C8EC; --actual:#3D46C2; --range:#3D46C233; --over:#E39B2E;
+  --line:#D6DAF2; --focus:#E39B2E;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#171A33;--panel:#20244A;--ink:#EEF0FB;--soft:#A8ADD6;--guess:#3E4475;--actual:#8D95FF;--range:#8D95FF33;--line:#2F3463}
+}
+:root[data-theme="dark"]{--bg:#171A33;--panel:#20244A;--ink:#EEF0FB;--soft:#A8ADD6;--guess:#3E4475;--actual:#8D95FF;--range:#8D95FF33;--line:#2F3463}
+*{box-sizing:border-box}
+html{font-family:"Recursive",system-ui,sans-serif;font-variation-settings:"CASL" 0.6;color:var(--ink);background:var(--bg)}
+body{margin:0;background:var(--bg);line-height:1.5;font-size:17px}
+main{max-width:46rem;margin:0 auto;padding:2.5rem 1rem 5rem}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+h1{font-size:clamp(2.6rem,9vw,4.2rem);line-height:1;margin:0;font-weight:850;letter-spacing:-.02em;font-variation-settings:"CASL" 1,"slnt" -8}
+.lede{font-size:1.15rem;color:var(--soft);margin:.6rem 0 2rem;max-width:34rem}
+.profile{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:1.25rem;font-size:.95rem;color:var(--soft)}
+.profile select,.profile input{font:inherit;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:.3rem .5rem}
+.dump{background:var(--panel);border-radius:18px;padding:1.25rem;border:1.5px solid var(--line)}
+label.big{display:block;font-weight:700;font-size:1.05rem;margin-bottom:.5rem}
+textarea{width:100%;min-height:8.5rem;font:inherit;font-variation-settings:"CASL" 1;font-size:1.05rem;color:var(--ink);background:transparent;border:0;resize:vertical;padding:0}
+textarea::placeholder{color:var(--soft);opacity:.75}
+.row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1.5px dashed var(--line)}
+.free{flex:1;min-width:14rem;display:flex;gap:.75rem;align-items:center}
+.free input{flex:1;accent-color:var(--actual)}
+.free output{font-weight:700;min-width:4.5rem}
+button{font:inherit;font-weight:750;cursor:pointer;border:0;border-radius:999px;padding:.7rem 1.4rem;background:var(--actual);color:#fff}
+button:disabled{opacity:.55;cursor:progress}
+button.quiet{background:transparent;color:var(--actual);border:1.5px solid var(--actual);padding:.45rem 1rem}
+.status{margin-top:1rem;color:var(--soft);min-height:1.5rem}
+.status.err{color:#B4372A}
+.verdict{margin:2.5rem 0 1rem}
+.verdict p{margin:0;font-size:clamp(1.5rem,4.6vw,2.1rem);line-height:1.2;font-weight:600}
+.verdict .you{color:var(--soft);text-decoration:line-through;text-decoration-thickness:2px}
+.verdict .real{font-weight:850;font-variation-settings:"CASL" 1}
+.verdict small{display:block;margin-top:.5rem;color:var(--soft);font-size:1rem}
+.scale{position:relative;margin:1.75rem 0 .25rem;height:1.6rem;font-size:.8rem;color:var(--soft)}
+.scale span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.scale span:first-child{transform:none}
+.budget{position:absolute;top:-.4rem;height:200vh;border-left:2.5px solid var(--over);pointer-events:none}
+.budget b{position:absolute;top:-1.4rem;left:.35rem;white-space:nowrap;color:var(--over);font-size:.85rem}
+.timeline{position:relative;overflow:hidden;padding-top:.5rem}
+.group h2{font-size:1.1rem;margin:1.25rem 0 .5rem;font-weight:750}
+.group h2 span{color:var(--soft);font-weight:500}
+.task{position:relative;padding:.6rem 0 .9rem;border-bottom:1.5px solid var(--line)}
+.task:last-child{border-bottom:0}
+.task .name{font-weight:650;font-variation-settings:"CASL" 1}
+.bars{position:relative;height:1.6rem;margin:.35rem 0 .3rem}
+.bar{position:absolute;border-radius:6px}
+.bar.guess{background:var(--guess);height:.55rem;top:.15rem}
+.bar.range{background:var(--range);top:.85rem;height:.7rem}
+.bar.actual{top:.85rem;height:.7rem;background:var(--actual)}
+.moved .bar.actual{background:var(--over)}
+.meta{display:flex;gap:.4rem 1rem;flex-wrap:wrap;font-size:.9rem;color:var(--soft)}
+.meta strong{color:var(--ink)}
+.why{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem}
+.why span{font-size:.85rem;background:var(--bg);border-radius:999px;padding:.15rem .65rem}
+.legend{display:flex;gap:.5rem 1.25rem;flex-wrap:wrap;font-size:.85rem;color:var(--soft);margin:.5rem 0}
+.legend i{display:inline-block;width:1.4rem;height:.5rem;border-radius:4px;margin-right:.35rem;vertical-align:middle}
+details.log{margin-top:2.5rem;background:var(--panel);border-radius:18px;padding:1rem 1.25rem;border:1.5px solid var(--line)}
+details.log summary{cursor:pointer;font-weight:700}
+.logform{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.75rem;margin-top:1rem}
+.logform label{font-size:.85rem;color:var(--soft);display:flex;flex-direction:column;gap:.2rem}
+.logform input,.logform select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:.4rem .5rem}
+.logform .wide{grid-column:1/-1}
+.logform .check{flex-direction:row;align-items:center;gap:.4rem}
+footer{margin-top:3rem;font-size:.85rem;color:var(--soft);max-width:36rem}
+footer a{color:inherit}
+@media (prefers-reduced-motion:no-preference){
+  .bar.actual{transform-origin:left;animation:grow .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}
+  @keyframes grow{from{transform:scaleX(var(--from,.3))}to{transform:scaleX(1)}}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Actually</h1>
+  <p class="lede">You say it'll take 15 minutes. Your history says otherwise. Dump everything on your mind and see what really fits today.</p>
+
+  <div class="profile">
+    <label for="profile">History from</label>
+    <select id="profile">
+      <option value="demo">Demo person (made-up data)</option>
+      <option value="friend">Zee</option>
+    </select>
+    <input id="pass" type="password" placeholder="Passphrase" aria-label="Passphrase" hidden>
+  </div>
+
+  <form class="dump" id="dumpForm">
+    <label class="big" for="text">What's on your plate?</label>
+    <textarea id="text" required placeholder="ugh ok. email prof abt the extension, laundry maybe, finish dbms assignment (20 min max), call ammi back, gym if i have energy"></textarea>
+    <div class="row">
+      <div class="free">
+        <label for="free">Free time today</label>
+        <input id="free" type="range" min="30" max="600" step="15" value="180">
+        <output id="freeOut" for="free">3h</output>
+      </div>
+      <button id="go" type="submit">Make my plan</button>
+    </div>
+  </form>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+
+  <section id="result" hidden>
+    <div class="verdict" id="verdict"></div>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--guess)"></i>Your guess</span>
+      <span><i style="background:var(--actual)"></i>Likely, with range</span>
+      <span><i style="background:var(--over)"></i>Won't fit today</span>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <details class="log">
+    <summary>Finished something? Log how long it took</summary>
+    <form class="logform" id="logForm">
+      <label class="wide">Task<input name="task" required placeholder="email prof about extension"></label>
+      <label>Kind
+        <select name="kind">
+          <option>admin</option><option>study</option><option>chore</option><option>errand</option>
+          <option>social</option><option>creative</option><option>work</option><option>health</option>
+        </select>
+      </label>
+      <label>You guessed (min)<input name="guess_min" type="number" min="1" inputmode="numeric"></label>
+      <label>It took (min)<input name="actual_min" type="number" min="1" required inputmode="numeric"></label>
+      <label class="check"><input type="checkbox" name="dreaded"> I was dreading it</label>
+      <label class="check"><input type="checkbox" name="done_same_day" checked> Done the day I planned</label>
+      <div class="wide"><button class="quiet" type="submit">Save to my history</button></div>
+    </form>
+    <p class="status" id="logStatus" role="status" aria-live="polite"></p>
+  </details>
+
+  <footer>
+    Your words are read by a small open model fine-tuned for this, and your history by TabPFN, both running on this server. Nothing is sent to an AI company.
+    <a href="https://github.com/ArqamWaheed/actually">Source code</a>
+  </footer>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const fmt = m => { m = Math.round(m); if (m < 60) return m + "m"; const h = Math.floor(m / 60), r = m % 60; return r ? `${h}h ${r}m` : `${h}h`; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const free = $("#free"), freeOut = $("#freeOut");
+free.oninput = () => freeOut.textContent = fmt(+free.value);
+$("#profile").onchange = e => { $("#pass").hidden = e.target.value === "demo"; };
+
+function headers() {
+  const h = {"Content-Type": "application/json"};
+  if ($("#profile").value !== "demo") h["X-Passphrase"] = $("#pass").value;
+  return h;
+}
+
+$("#dumpForm").onsubmit = async e => {
+  e.preventDefault();
+  const btn = $("#go"), st = $("#status");
+  btn.disabled = true; st.className = "status"; st.textContent = "Reading your list and checking your history…";
+  try {
+    const r = await fetch("/api/plan", {method: "POST", headers: headers(),
+      body: JSON.stringify({text: $("#text").value, free_min: +free.value, profile: $("#profile").value})});
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || "Couldn't make a plan. Try again.");
+    render(data);
+    st.textContent = `Based on ${data.history_rows} past tasks.`;
+  } catch (err) {
+    st.className = "status err"; st.textContent = err.message;
+  } finally { btn.disabled = false; }
+};
+
+function render({plan}) {
+  const all = [...plan.do_now, ...plan.move];
+  const max = Math.max(plan.free_min, ...all.map(t => Math.max(t.p90_min, t.guess_min || 0))) * 1.05;
+  const pct = m => (100 * m / max).toFixed(2) + "%";
+  const guessed = all.some(t => t.guess_min) ? fmt(plan.guessed_total_min) : null;
+  $("#verdict").innerHTML = `<p>${guessed ? `You'd guess <span class="you">${guessed}</span>. ` : ""}It'll actually take you about <span class="real">${fmt(plan.actual_total_min)}</span>.</p>
+    <small>You have ${fmt(plan.free_min)} free. ${plan.move.length ? `${plan.do_now.length} ${plan.do_now.length === 1 ? "thing fits" : "things fit"}; move the other ${plan.move.length} to tomorrow.` : "Everything fits."}</small>`;
+  const ticks = [], step = max > 300 ? 120 : max > 120 ? 60 : 30;
+  for (let m = 0; m <= max; m += step) ticks.push(`<span style="left:${pct(m)}">${m ? fmt(m) : "0"}</span>`);
+  let i = 0;
+  const row = (t, moved) => {
+    const g = t.guess_min ? `<div class="bar guess" style="left:0;width:${pct(t.guess_min)}"></div>` : "";
+    const from = t.guess_min ? Math.min(1, t.guess_min / t.p50_min) : .3;
+    return `<div class="task${moved ? " moved" : ""}">
+      <div class="name">${esc(t.title)}</div>
+      <div class="bars">${g}
+        <div class="bar range" style="left:${pct(t.p10_min)};width:${pct(t.p90_min - t.p10_min)}"></div>
+        <div class="bar actual" style="left:0;width:${pct(t.p50_min)};--i:${i++};--from:${from}"></div>
+      </div>
+      <div class="meta">
+        ${t.guess_min ? `<span>You: ${fmt(t.guess_min)}</span>` : ""}
+        <span>Actually: <strong>${fmt(t.p50_min)}</strong> (${fmt(t.p10_min)} to ${fmt(t.p90_min)})</span>
+        ${t.p_done_today != null ? `<span>Chance you finish today: <strong>${Math.round(t.p_done_today * 100)}%</strong></span>` : ""}
+      </div>
+      ${t.why.length ? `<div class="why">${t.why.map(w => `<span>${esc(w)}</span>`).join("")}</div>` : ""}
+    </div>`;
+  };
+  const sum = arr => fmt(arr.reduce((a, t) => a + t.p50_min, 0));
+  $("#timeline").innerHTML = `
+    <div class="scale" aria-hidden="true">${ticks.join("")}
+      <div class="budget" style="left:${pct(plan.free_min)}"><b>${fmt(plan.free_min)} free</b></div></div>
+    ${plan.do_now.length ? `<div class="group"><h2>Fits today <span>${sum(plan.do_now)}</span></h2>${plan.do_now.map(t => row(t, false)).join("")}</div>` : ""}
+    ${plan.move.length ? `<div class="group"><h2>Move to tomorrow <span>${sum(plan.move)}</span></h2>${plan.move.map(t => row(t, true)).join("")}</div>` : ""}`;
+  $("#result").hidden = false;
+  $("#verdict").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+}
+
+$("#logForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = new FormData(e.target), st = $("#logStatus");
+  const body = {profile: $("#profile").value, task: f.get("task"), kind: f.get("kind"),
+    guess_min: f.get("guess_min") ? +f.get("guess_min") : null, actual_min: +f.get("actual_min"),
+    dreaded: f.has("dreaded"), done_same_day: f.has("done_same_day")};
+  const r = await fetch("/api/log", {method: "POST", headers: headers(), body: JSON.stringify(body)});
+  const data = await r.json();
+  st.className = r.ok ? "status" : "status err";
+  st.textContent = r.ok ? `Saved. Your next plan uses ${data.history_rows} past tasks.` : (data.detail || "Couldn't save that. Try again.");
+  if (r.ok) e.target.reset();
+};
+</script>
+</body>
+</html>
