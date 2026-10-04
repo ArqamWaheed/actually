@@ -1,0 +1,13 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+tinker
+tabpfn
+tabpfn-extensions[interpretability]
+fastapi
+uvicorn[standard]
+openai
+sentry-sdk
+pandas
+scikit-learn
+python-dotenv
+httpx

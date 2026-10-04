@@ -11,8 +11,8 @@ Strategy + full plan: ~/theodinproject/repos/research/outputs/hackathon-research
 Python 3.12 (uv), FastAPI, SQLite, tinker SDK, tabpfn (local, CPU torch), openai client, sentry-sdk. Serving: Ollama/llama.cpp GGUF on a DO Droplet. Single HTML page UI.
 
 ## Status snapshot
-- Phase: bootstrap
-- Next: venv + go/no-go gates (tinker auth, tabpfn weights, doctl)
+- Phase: scaffold done (app/, train/, eval/, demo data). Blocked on keys.
+- Next: keys (Tinker promo needs MyMLH phone+GitHub; TabPFN license at ux.priorlabs.ai), then gen_synthetic -> sft -> eval. Host = HF Spaces free (user: $0 budget, no DO).
 
 ## Key decisions (why)
 - Qwen3.5-4B (Tinker) — fits CPU droplet; tune closes gap to 9B.

@@ -1,0 +1,71 @@
+date,task,kind,guess_min,actual_min,done_same_day,start_hour,dreaded,left_house
+2026-09-10,edit reel,creative,35,46,y,14,n,n
+2026-09-10,email prof about extension,admin,5,14,y,12,y,n
+2026-09-10,pick up parcel,errand,35,47,n,10,n,y
+2026-09-11,laundry,chore,25,36,y,12,n,n
+2026-09-11,reply to landlord,admin,10,49,y,16,y,n
+2026-09-11,birthday msg for hamza,social,15,30,y,16,n,n
+2026-09-12,gym,health,50,45,y,20,n,y
+2026-09-12,go for a walk,health,30,64,y,22,n,y
+2026-09-12,sketch logo idea,creative,40,85,y,20,n,n
+2026-09-13,go for a walk,health,30,46,y,12,n,y
+2026-09-13,call ammi back,social,15,30,n,22,n,n
+2026-09-13,call ammi back,social,15,16,y,14,n,n
+2026-09-14,go for a walk,health,45,87,n,22,n,y
+2026-09-14,fix freelance bug,work,30,48,n,16,n,n
+2026-09-14,dishes,chore,20,19,y,18,n,n
+2026-09-15,fold clothes,chore,25,39,y,10,n,n
+2026-09-15,finish lab report,study,35,61,n,23,n,n
+2026-09-15,fill scholarship form,admin,10,30,n,12,y,n
+2026-09-16,fix freelance bug,work,45,84,y,14,n,n
+2026-09-16,gym,health,35,67,y,23,n,y
+2026-09-16,print notes,errand,25,38,y,20,n,y
+2026-09-17,past paper q3,study,65,153,n,18,y,n
+2026-09-17,edit reel,creative,40,133,n,16,n,n
+2026-09-17,fix freelance bug,work,35,66,y,16,n,n
+2026-09-18,go for a walk,health,35,45,y,18,n,y
+2026-09-18,edit reel,creative,30,52,n,12,n,n
+2026-09-18,go for a walk,health,50,74,n,20,n,y
+2026-09-19,past paper q3,study,60,214,n,22,y,n
+2026-09-19,gym,health,30,37,y,20,n,y
+2026-09-19,fold clothes,chore,35,59,n,22,n,n
+2026-09-20,fold clothes,chore,30,35,y,10,n,n
+2026-09-20,laundry,chore,25,22,n,14,n,n
+2026-09-20,fold clothes,chore,20,28,n,14,n,n
+2026-09-21,dbms assignment,study,45,145,y,10,y,n
+2026-09-21,go for a walk,health,45,54,y,20,n,y
+2026-09-21,go for a walk,health,50,47,y,16,n,y
+2026-09-22,laundry,chore,20,33,n,22,n,n
+2026-09-22,print notes,errand,40,73,y,18,n,y
+2026-09-22,edit reel,creative,30,45,y,14,n,n
+2026-09-23,fix freelance bug,work,30,81,y,23,n,n
+2026-09-23,sketch logo idea,creative,30,59,n,22,n,n
+2026-09-23,gym,health,40,49,y,10,n,y
+2026-09-24,print notes,errand,25,21,y,12,n,y
+2026-09-24,call ammi back,social,10,36,y,22,n,n
+2026-09-24,call ammi back,social,15,21,y,10,n,n
+2026-09-25,finish lab report,study,50,73,y,18,n,n
+2026-09-25,laundry,chore,25,29,n,10,n,n
+2026-09-25,fold clothes,chore,30,44,n,16,n,n
+2026-09-26,fold clothes,chore,20,27,y,18,n,n
+2026-09-26,revise os chapter 4,study,55,109,n,22,n,n
+2026-09-26,fold clothes,chore,35,79,n,22,n,n
+2026-09-27,reply to group chat,social,15,25,y,16,n,n
+2026-09-27,pick up parcel,errand,45,59,n,10,n,y
+2026-09-27,dbms assignment,study,55,113,n,23,y,n
+2026-09-28,laundry,chore,25,40,y,22,n,n
+2026-09-28,clean room,chore,30,61,n,22,n,n
+2026-09-28,email prof about extension,admin,15,37,y,22,n,n
+2026-09-29,pick up parcel,errand,20,23,n,12,n,y
+2026-09-29,renew cnic appointment,admin,15,39,y,10,n,n
+2026-09-29,watch lecture 7,study,50,53,n,12,n,n
+2026-09-30,gym,health,30,60,n,22,n,y
+2026-09-30,watch lecture 7,study,55,174,n,14,y,n
+2026-09-30,book dentist,admin,15,98,n,23,y,n
+2026-10-01,reply to group chat,social,10,24,n,23,n,n
+2026-10-01,fill scholarship form,admin,15,84,n,18,y,n
+2026-10-01,groceries,errand,35,38,y,12,n,y
+2026-10-02,reply to group chat,social,15,27,n,12,n,n
+2026-10-02,go for a walk,health,35,43,n,22,n,y
+2026-10-02,book dentist,admin,15,34,y,20,n,n
+2026-10-03,finish lab report,study,60,126,n,20,n,n
