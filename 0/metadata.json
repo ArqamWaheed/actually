@@ -15,5 +15,30 @@
     "cache_read_tokens": 50514686,
     "output_tokens": 175627,
     "api_call_count": 191
+  },
+  "summary": {
+    "intent": "Win the DEV Hacktoberfest Weekend 2026 challenge by picking a prize-category stack and building 'Actually', an ADHD time-blindness planner for a friend, with a $0 budget and autonomous overnight execution, including an article draft, images and a demo video.",
+    "outcome": "Research and a playbook were done. The public repo ArqamWaheed/actually has a working scaffold: a Tinker LoRA fine-tune of Qwen3.5-4B, a TabPFN forecaster with KV-cache (forecast 9x faster), Sentry tracing, a designed UI, a README and screenshots. Accounts and keys are connected except Entire login. The adapter export, article draft, Flow images, demo video and real friend data are not finished.",
+    "learnings": {
+      "repo": [
+        "Project at ~/theodinproject/repos/actually: app/ (parser, forecast, plan, db, observability, main, static/index.html), train/ (gen_synthetic, sft), eval/ (tabpfn_eval, parser_eval). Keys live in .env, which is gitignored.",
+        "Friend's private data goes in data/private/ (brain_dumps.txt split on '---', tasks.csv with date,task,kind,guess_min,actual_min,done_same_day,start_hour,dreaded,left_house) and must never be committed.",
+        "Parser prompt and schema are shared by training, eval and app. The parser can use a Tinker-hosted model or a local one, and the UI footer privacy claim must match the actual backend.",
+        "TabPFN KV-cache fit mode cut forecast time from 2.43s to 0.27s. A request went from 5.6s to 3.5s, and Sentry showed the TabPFN span drop from 3.25s to about 270ms.",
+        "On synthetic demo data TabPFN only ties a linear model (13.7 vs 13.6 min MAE), so real claims need the friend's data.",
+        "The Entire redaction config was extended with custom secret rules in its settings."
+      ],
+      "code": [],
+      "workflow": [
+        "The hackathon entry-count tool stopped at 299 and still reported success. A larger page size recovered the real count of 786 entries.",
+        "Prize-category competition was measured by counting entries with substantive tech usage, not mere mentions. This identified uncrowded categories (Entire 1, DigitalOcean 4, Tinker 9).",
+        "The Claude-in-Chrome MCP can claim promo codes, redeem credits, create API keys and screenshot Sentry. The user must handle logins, 2FA and consent screens.",
+        "Tinker's raw LoRA adapter export through tinker-cookbook's PEFT builder downloads the full 8GB base model. That won't fit on a low-disk machine, so convert the adapter directly instead.",
+        "Disk was the constraint: 729MB free at one point. Clearing uv, npm, npx and thumbnail caches and re-downloadable binaries freed about 3.3GB.",
+        "Sentry: create a new project and leave the user's existing ones (android, coach-worker, ios, landing) alone."
+      ]
+    },
+    "friction": null,
+    "open_items": null
   }
 }
