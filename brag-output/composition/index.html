@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Actually — brag</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Recursive";
+        src: url("assets/fonts/Recursive.woff2") format("woff2");
+        font-weight: 300 1000;
+        font-style: oblique 0deg 15deg;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #171a33; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden;
+        font-family: "Recursive", system-ui, sans-serif; font-variation-settings: "CASL" 0.6; }
+      .scene { position: absolute; inset: 0; }
+      .light { background: #eef0fb; color: #1f2347;
+        background-image: radial-gradient(#c3c8ec 1.6px, transparent 1.6px); background-size: 36px 36px; }
+      .dark { background: #171a33; color: #eef0fb; }
+
+      /* Scene 1: his words */
+      #s1-wrap { position: absolute; left: 220px; top: 300px; width: 1480px; }
+      .quote-line { font-size: 104px; line-height: 1.12; font-weight: 700;
+        font-variation-settings: "CASL" 1; letter-spacing: -0.01em; min-height: 118px; }
+      .ch { opacity: 0; }
+      #s1-attr { margin-top: 56px; font-size: 40px; color: #5b6190; opacity: 0; }
+
+      /* Shared app chrome */
+      .app { position: absolute; left: 460px; top: 90px; width: 1000px; }
+      .wordmark-sm { font-size: 76px; font-weight: 850; font-variation-settings: "CASL" 1, "slnt" -8; letter-spacing: -0.02em; }
+      .lede { font-size: 30px; color: #a8add6; margin-top: 8px; }
+      .card { background: #20244a; border: 2px solid #2f3463; border-radius: 26px; padding: 34px 38px; }
+      .label-big { font-size: 32px; font-weight: 700; margin-bottom: 16px; }
+      #s2-text { font-size: 34px; line-height: 1.45; font-variation-settings: "CASL" 1; min-height: 200px; }
+      .row { display: flex; align-items: center; gap: 28px; margin-top: 24px; padding-top: 24px; border-top: 2px dashed #2f3463; font-size: 30px; }
+      .slider { flex: 1; height: 8px; border-radius: 4px; background: #3e4475; position: relative; }
+      .slider::after { content: ""; position: absolute; left: 0; top: 0; height: 8px; width: 30%; background: #8d95ff; border-radius: 4px; }
+      .btn { background: #8d95ff; color: #14173a; font-weight: 750; padding: 18px 36px; border-radius: 999px; font-size: 30px; }
+      #cursor { position: absolute; left: 0; top: 0; width: 46px; height: 46px; }
+
+      /* Scene 3: verdict + timeline */
+      #s3-verdict { position: absolute; left: 260px; top: 110px; width: 1400px; font-size: 64px; line-height: 1.18; font-weight: 600; }
+      .you { color: #a8add6; position: relative; display: inline-block; }
+      .strike { position: absolute; left: 0; top: 52%; height: 5px; width: 100%; background: #a8add6; transform-origin: left; }
+      .real { font-weight: 850; font-variation-settings: "CASL" 1; display: inline-block; }
+      #s3-sub { position: absolute; left: 260px; top: 290px; font-size: 32px; color: #a8add6; }
+      #tl { position: absolute; left: 260px; top: 380px; width: 1400px; height: 640px; }
+      .budget { position: absolute; left: 896px; width: 208px; top: 0; bottom: 0; border-right: 4px solid #e39b2e; }
+      .budget b { position: absolute; right: 14px; top: 0; color: #e39b2e; font-size: 28px; white-space: nowrap; }
+      .trow { position: absolute; left: 0; width: 1400px; }
+      .tname { font-size: 34px; font-weight: 650; font-variation-settings: "CASL" 1; }
+      .bars { position: relative; height: 40px; margin: 10px 0 6px; }
+      .bar { position: absolute; left: 0; border-radius: 8px; }
+      .g { top: 0; height: 14px; background: #3e4475; }
+      .rng { top: 20px; height: 18px; background: #8d95ff33; }
+      .a { top: 20px; height: 18px; background: #8d95ff; transform-origin: left; }
+      .moved .a { background: #e39b2e; }
+      .tmeta { font-size: 26px; color: #a8add6; }
+      .tmeta strong { color: #eef0fb; }
+      #movehdr { position: absolute; left: 0; top: 448px; font-size: 32px; font-weight: 750; opacity: 0; }
+
+      /* Scene 4: plate */
+      #s4-wrap { position: absolute; left: 460px; top: 150px; width: 1000px; }
+      .plate-h { font-size: 52px; font-weight: 750; margin-bottom: 30px; }
+      .plate-h span { color: #a8add6; font-weight: 500; }
+      .pitem { display: flex; align-items: center; gap: 22px; background: #20244a; border: 2px solid #2f3463;
+        border-radius: 20px; padding: 22px 26px; margin-bottom: 16px; font-size: 36px; font-weight: 600; font-variation-settings: "CASL" 1; }
+      .pitem .t { flex: 1; }
+      .dot { width: 16px; height: 16px; border-radius: 50%; background: #e39b2e; }
+      .age { font-size: 26px; color: #a8add6; font-weight: 500; }
+      .done { font-size: 26px; color: #8d95ff; border: 2px solid #8d95ff; border-radius: 999px; padding: 6px 20px; }
+      #s4-cap { margin-top: 30px; font-size: 38px; color: #a8add6; opacity: 0; }
+
+      /* Scene 5: outro */
+      #s5-wrap { position: absolute; left: 0; right: 0; top: 300px; text-align: center; }
+      #s5-mark { font-size: 220px; font-weight: 850; font-variation-settings: "CASL" 1, "slnt" -8; letter-spacing: -0.02em; line-height: 1; }
+      #s5-tag { font-size: 52px; margin-top: 24px; }
+      #s5-small { font-size: 32px; color: #5b6190; margin-top: 48px; }
+      #s5-url { font-size: 34px; color: #3d46c2; margin-top: 14px; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="21" data-width="1920" data-height="1080">
+
+      <section id="s1" class="scene clip light" data-start="0" data-duration="4.3" data-track-index="0">
+        <div id="s1-wrap">
+          <div class="quote-line" id="q1" data-text="if infront remember"></div>
+          <div class="quote-line" id="q2" data-text="or else gone from brain."></div>
+          <div id="s1-attr">Zee, my friend with ADHD</div>
+        </div>
+      </section>
+
+      <section id="s2" class="scene clip dark" data-start="4" data-duration="4.8" data-track-index="0">
+        <div class="app" id="s2-app">
+          <div class="wordmark-sm">Actually</div>
+          <div class="lede">You say it'll take 15 minutes. Your history says otherwise.</div>
+          <div class="card" style="margin-top:44px">
+            <div class="label-big">What's on your plate?</div>
+            <div id="s2-text" data-text="email sir abt the attendance thing (5 min), finish dbms assignment should take like 30 min, laundry maybe, call nani back i keep forgetting"></div>
+            <div class="row"><span>Free time today</span><div class="slider"></div><strong>3h</strong><div class="btn" id="s2-btn">Make my plan</div></div>
+          </div>
+        </div>
+        <svg id="cursor" viewBox="0 0 24 24"><path d="M3 2l7 19 2.6-7.4L20 11z" fill="#ffffff" stroke="#171a33" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      </section>
+
+      <section id="s3" class="scene clip dark" data-start="8.5" data-duration="6.8" data-track-index="0">
+        <div id="s3-verdict">You'd guess <span class="you" id="v-you">35m<i class="strike" id="v-strike"></i></span>. <span id="v-rest">It'll actually take you about <span class="real" id="v-real">3h 14m</span>.</span></div>
+        <div id="s3-sub">You have 3h free. 5 things fit; move the other 1 to tomorrow.</div>
+        <div id="tl">
+          <div class="budget" id="budget"><b>3h free</b></div>
+          <div class="trow" id="r1" style="top:0px"><div class="tname">email sir abt the attendance thing</div>
+            <div class="bars"><div class="bar g" style="width:30px"></div><div class="bar rng" style="left:42px;width:138px"></div><div class="bar a" style="width:92px"></div></div>
+            <div class="tmeta">You: 5m&nbsp;&nbsp;&nbsp;Actually: <strong>15m</strong> (7m to 30m)</div></div>
+          <div class="trow" id="r2" style="top:128px"><div class="tname">finish dbms assignment</div>
+            <div class="bars"><div class="bar g" style="width:183px"></div><div class="bar rng" style="left:171px;width:238px"></div><div class="bar a" style="width:263px"></div></div>
+            <div class="tmeta">You: 30m&nbsp;&nbsp;&nbsp;Actually: <strong>43m</strong> (28m to 1h 7m)</div></div>
+          <div class="trow" id="r3" style="top:256px"><div class="tname">call nani back</div>
+            <div class="bars"><div class="bar rng" style="left:92px;width:226px"></div><div class="bar a" style="width:171px"></div></div>
+            <div class="tmeta">Actually: <strong>28m</strong> (15m to 52m)</div></div>
+          <div class="tmeta" id="more" style="position:absolute;left:0;top:398px">+ reply to hamza abt saturday <strong>28m</strong>, gym <strong>44m</strong></div>
+          <div id="movehdr">Move to tomorrow</div>
+          <div class="trow moved" id="r4" style="top:494px"><div class="tname">laundry</div>
+            <div class="bars"><div class="bar rng" style="left:122px;width:275px"></div><div class="bar a" style="width:220px"></div></div>
+            <div class="tmeta">Actually: <strong>36m</strong> (20m to 1h 5m)</div></div>
+        </div>
+      </section>
+
+      <section id="s4" class="scene clip dark" data-start="15" data-duration="3.8" data-track-index="0">
+        <div id="s4-wrap">
+          <div class="plate-h" id="p-h">Still on your plate <span>4</span></div>
+          <div class="pitem" id="p1"><span class="dot"></span><span class="t">call nani back</span><span class="age">today</span><span class="done">Done</span></div>
+          <div class="pitem" id="p2"><span class="t">finish dbms assignment</span><span class="age">today</span><span class="done">Done</span></div>
+          <div class="pitem" id="p3"><span class="dot"></span><span class="t">reply to hamza abt saturday</span><span class="age">today</span><span class="done">Done</span></div>
+          <div class="pitem" id="p4"><span class="t">laundry</span><span class="age">since yesterday</span><span class="done">Done</span></div>
+          <div id="s4-cap">Nothing disappears until you tick it off.</div>
+        </div>
+      </section>
+
+      <section id="s5" class="scene clip light" data-start="18.5" data-duration="2.5" data-track-index="0">
+        <div id="s5-wrap">
+          <div id="s5-mark">Actually</div>
+          <div id="s5-tag">How long will it actually take you?</div>
+          <div id="s5-small">fine-tuned Qwen3.5-4B + TabPFN, built for one friend</div>
+          <div id="s5-url">github.com/ArqamWaheed/actually</div>
+        </div>
+      </section>
+
+    <audio id="music" data-start="0" data-duration="21" data-volume="0.32" src="assets/music/happy-beats-business-moves-vol-1-by-ende-dot-app.mp3"></audio>
+    <audio id="click" data-start="7.72" data-duration="0.3" data-volume="0.6" src="assets/sfx/interface/click_003.ogg"></audio>
+    <audio id="verdict-hit" data-start="9.4" data-duration="0.4" data-volume="0.6" src="assets/sfx/impact/impactSoft_medium_001.ogg"></audio>
+    <audio id="key-h0" data-start="0.35" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-001.wav"></audio>
+    <audio id="key-h1" data-start="0.52" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-003.wav"></audio>
+    <audio id="key-h2" data-start="0.72" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-005.wav"></audio>
+    <audio id="key-h3" data-start="0.95" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-007.wav"></audio>
+    <audio id="key-h4" data-start="1.18" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-009.wav"></audio>
+    <audio id="key-h5" data-start="1.55" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-012.wav"></audio>
+    <audio id="key-h6" data-start="1.8" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-015.wav"></audio>
+    <audio id="key-h7" data-start="2.05" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-018.wav"></audio>
+    <audio id="key-h8" data-start="2.3" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-001.wav"></audio>
+    <audio id="key-h9" data-start="2.5" data-duration="0.3" data-volume="0.45" src="assets/sfx/keyboard/keypress-003.wav"></audio>
+    <audio id="key-d0" data-start="4.5" data-duration="0.3" data-volume="0.3" src="assets/sfx/keyboard/keypress-007.wav"></audio>
+    <audio id="key-d1" data-start="4.85" data-duration="0.3" data-volume="0.3" src="assets/sfx/keyboard/keypress-009.wav"></audio>
+    <audio id="key-d2" data-start="5.25" data-duration="0.3" data-volume="0.3" src="assets/sfx/keyboard/keypress-012.wav"></audio>
+    <audio id="key-d3" data-start="5.65" data-duration="0.3" data-volume="0.3" src="assets/sfx/keyboard/keypress-015.wav"></audio>
+    <audio id="key-d4" data-start="6.05" data-duration="0.3" data-volume="0.3" src="assets/sfx/keyboard/keypress-018.wav"></audio>
+    <audio id="key-d5" data-start="6.45" data-duration="0.3" data-volume="0.3" src="assets/sfx/keyboard/keypress-001.wav"></audio>
+    <audio id="key-d6" data-start="6.8" data-duration="0.3" data-volume="0.3" src="assets/sfx/keyboard/keypress-003.wav"></audio>
+    <audio id="card-0" data-start="10.3" data-duration="0.6" data-volume="0.35" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+    <audio id="card-1" data-start="11.1" data-duration="0.6" data-volume="0.35" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+    <audio id="card-2" data-start="11.9" data-duration="0.6" data-volume="0.35" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+    <audio id="card-3" data-start="12.9" data-duration="0.6" data-volume="0.35" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+    <audio id="card-4" data-start="15.5" data-duration="0.6" data-volume="0.35" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+    <audio id="card-5" data-start="16.0" data-duration="0.6" data-volume="0.35" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+    <audio id="card-6" data-start="16.5" data-duration="0.6" data-volume="0.35" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+    <audio id="card-7" data-start="17.0" data-duration="0.6" data-volume="0.35" src="assets/sfx/casino/card-slide-1.ogg"></audio>
+    </div>
+    <script>
+      // split typed lines into per-character spans (deterministic, built once at init)
+      function splitChars(el) {
+        const text = el.dataset.text; el.textContent = "";
+        return [...text].map(c => { const s = document.createElement("span"); s.className = "ch"; s.textContent = c; el.appendChild(s); return s; });
+      }
+      const q1 = splitChars(document.getElementById("q1"));
+      const q2 = splitChars(document.getElementById("q2"));
+      const dump = splitChars(document.getElementById("s2-text"));
+
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1 (0-4.3): his words type on, then attribution
+      q1.forEach((s, i) => tl.set(s, { opacity: 1 }, 0.3 + i * 0.052));
+      q2.forEach((s, i) => tl.set(s, { opacity: 1 }, 1.45 + i * 0.047));
+      tl.fromTo("#s1-attr", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.75);
+      tl.to("#s1-wrap", { opacity: 0, duration: 0.3 }, 4.0);
+
+      // Scene 2 (4-8.8): brain-dump types, cursor clicks Make my plan
+      tl.fromTo("#s2-app", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.0);
+      dump.forEach((s, i) => tl.set(s, { opacity: 1 }, 4.45 + i * 0.0185));
+      tl.fromTo("#cursor", { x: 1500, y: 980, opacity: 0 }, { x: 1286, y: 640, opacity: 1, duration: 0.6, ease: "power2.inOut" }, 7.0);
+      tl.to("#s2-btn", { scale: 0.93, duration: 0.08 }, 7.7);
+      tl.to("#s2-btn", { scale: 1, duration: 0.15 }, 7.8);
+      tl.to("#s2-app", { opacity: 0, duration: 0.3 }, 8.45);
+
+      // Scene 3 (8.5-15.3): verdict, then rows one by one
+      tl.fromTo("#s3-verdict", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 8.6);
+      tl.fromTo("#v-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power2.out" }, 9.05);
+      tl.fromTo("#v-real", { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" }, 9.38);
+      tl.fromTo("#s3-sub", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 9.8);
+      tl.fromTo("#budget", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 9.9);
+      [["#r1", 10.3], ["#r2", 11.1], ["#r3", 11.9]].forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, t);
+        tl.fromTo(id + " .a", { scaleX: 0.25 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, t + 0.15);
+      });
+      tl.fromTo("#more", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 12.45);
+      tl.fromTo("#movehdr", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 12.75);
+      tl.fromTo("#r4", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 12.9);
+      tl.fromTo("#r4 .a", { scaleX: 0.25 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, 13.05);
+      tl.to(["#s3-verdict", "#s3-sub", "#tl"], { opacity: 0, duration: 0.3 }, 14.95);
+
+      // Scene 4 (15-18.8): carry-over list, rows on the beat grid
+      tl.fromTo("#p-h", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35 }, 15.1);
+      // beat-grid: rows at 15.52, 16.02, 16.52, 17.02 (strong cue at 16.02 and 17.02)
+      [["#p1", 15.5], ["#p2", 16.0], ["#p3", 16.5], ["#p4", 17.0]].forEach(([id, t]) =>
+        tl.fromTo(id, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }, t));
+      tl.fromTo("#s4-cap", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 17.4);
+      tl.to("#s4-wrap", { opacity: 0, duration: 0.3 }, 18.45);
+
+      // Scene 5 (18.5-21): outro
+      tl.fromTo("#s5-mark", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 18.6);
+      tl.fromTo("#s5-tag", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 19.1);
+      // beat-locked: 20.02s
+      tl.fromTo(["#s5-small", "#s5-url"], { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.12 }, 19.95);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

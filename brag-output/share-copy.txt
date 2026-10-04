@@ -1,0 +1,1 @@
+My friend with ADHD told me "if it is not in front of me, it is gone." So I built him Actually: a 4B open model I fine-tuned reads his brain-dumps, and TabPFN tells him how long each task will really take him. Nothing he dumps disappears until he ticks it off.

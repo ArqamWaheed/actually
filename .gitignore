@@ -7,3 +7,5 @@ data/private/
 out/
 *.db
 .DS_Store
+brag-output/composition/node_modules/
+brag-output/composition/renders/

@@ -36,3 +36,8 @@ Python 3.12 (uv), FastAPI, SQLite, tinker SDK, tabpfn (local, CPU torch), openai
   -> Reframe: nothing from a dump disappears (carry-over list keeps tasks + people in front of him); real durations show when one thing will eat the day (hyperfocus).
 - No friend task history (tasks.csv) and NO friend reaction. NEVER simulate/invent his reaction or quote. Post uses only his real words above; say honestly the handover hasn't happened yet unless Arqam gets one.
 - User asleep until ~8 AM PKT. Do NOT publish the DEV post.
+
+## 2026-10-05 02:00 PKT status
+- DONE: SFT v1 + eval (results/), TabPFN KV-cache, carry-over + hyperfocus features, Sentry gen_ai spans + screenshots, README, Entire checkpoint (redaction-verified), article draft (../articlewriting/hacktoberfest-actually-build-for-a-friend.md), Flow images (docs/images), brag video (brag-output/ -> docs/actually-demo.mp4).
+- BLOCKED on user: public HF Space/model repo (denied while asleep), YouTube upload, DEV publish, Zee's reaction.
+- Spend: Tinker $2.81 of $10.
