@@ -49,8 +49,8 @@ button.quiet{background:transparent;color:var(--actual);border:1.5px solid var(-
 .scale span{position:absolute;transform:translateX(-50%);white-space:nowrap}
 .scale span:first-child{transform:none}
 .budget{position:absolute;top:-.4rem;height:200vh;border-left:2.5px solid var(--over);pointer-events:none}
-.budget b{position:absolute;top:-1.4rem;left:.35rem;white-space:nowrap;color:var(--over);font-size:.85rem}
-.timeline{position:relative;overflow:hidden;padding-top:.5rem}
+.budget b{position:absolute;top:-1.4rem;right:.35rem;white-space:nowrap;color:var(--over);font-size:.85rem}
+.timeline{position:relative;overflow:hidden;padding-top:1.75rem}
 .group h2{font-size:1.1rem;margin:1.25rem 0 .5rem;font-weight:750}
 .group h2 span{color:var(--soft);font-weight:500}
 .task{position:relative;padding:.6rem 0 .9rem;border-bottom:1.5px solid var(--line)}
@@ -68,6 +68,17 @@ button.quiet{background:transparent;color:var(--actual);border:1.5px solid var(-
 .why span{font-size:.85rem;background:var(--bg);border-radius:999px;padding:.15rem .65rem}
 .legend{display:flex;gap:.5rem 1.25rem;flex-wrap:wrap;font-size:.85rem;color:var(--soft);margin:.5rem 0}
 .legend i{display:inline-block;width:1.4rem;height:.5rem;border-radius:4px;margin-right:.35rem;vertical-align:middle}
+.plate{margin:0 0 1.5rem}
+.plate h2{font-size:1.1rem;margin:0 0 .5rem;font-weight:750}
+.plate h2 span{color:var(--soft);font-weight:500}
+.plate ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.4rem}
+.plate li{display:flex;align-items:center;gap:.75rem;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:.5rem .5rem .5rem .9rem}
+.plate li .t{flex:1;font-variation-settings:"CASL" 1;font-weight:600}
+.plate li .age{font-size:.85rem;color:var(--soft)}
+.plate li.person .t::before{content:"";display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--over);margin-right:.5rem;vertical-align:middle}
+.plate li button{padding:.3rem .8rem;font-size:.9rem}
+.plate .empty{color:var(--soft);font-size:.95rem;margin:0}
+.swallow{display:inline-block;font-size:.85rem;font-weight:700;color:var(--over);margin-top:.35rem}
 details.log{margin-top:2.5rem;background:var(--panel);border-radius:18px;padding:1rem 1.25rem;border:1.5px solid var(--line)}
 details.log summary{cursor:pointer;font-weight:700}
 .logform{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.75rem;margin-top:1rem}
@@ -88,11 +99,16 @@ footer a{color:inherit}
   <h1>Actually</h1>
   <p class="lede">You say it'll take 15 minutes. Your history says otherwise. Dump everything on your mind and see what really fits today.</p>
 
+  <section class="plate" id="plate" aria-labelledby="plateTitle" hidden>
+    <h2 id="plateTitle">Still on your plate <span id="plateCount"></span></h2>
+    <ul id="plateList"></ul>
+  </section>
+
   <div class="profile">
     <label for="profile">History from</label>
     <select id="profile">
       <option value="demo">Demo person (made-up data)</option>
-      <option value="friend">Zee</option>
+      <option value="friend" id="friendOpt" hidden>Zee</option>
     </select>
     <input id="pass" type="password" placeholder="Passphrase" aria-label="Passphrase" hidden>
   </div>
@@ -125,6 +141,7 @@ footer a{color:inherit}
     <summary>Finished something? Log how long it took</summary>
     <form class="logform" id="logForm">
       <label class="wide">Task<input name="task" required placeholder="email prof about extension"></label>
+      <input type="hidden" name="open_id">
       <label>Kind
         <select name="kind">
           <option>admin</option><option>study</option><option>chore</option><option>errand</option>
@@ -141,7 +158,7 @@ footer a{color:inherit}
   </details>
 
   <footer>
-    Your words are read by a small open model fine-tuned for this, and your history by TabPFN, both running on this server. Nothing is sent to an AI company.
+    <span id="where">Your history is read by TabPFN on this server.</span>
     <a href="https://github.com/ArqamWaheed/actually">Source code</a>
   </footer>
 </main>
@@ -169,6 +186,7 @@ $("#dumpForm").onsubmit = async e => {
     const data = await r.json();
     if (!r.ok) throw new Error(data.detail || "Couldn't make a plan. Try again.");
     render(data);
+    loadPlate();
     st.textContent = `Based on ${data.history_rows} past tasks.`;
   } catch (err) {
     st.className = "status err"; st.textContent = err.message;
@@ -199,6 +217,7 @@ function render({plan}) {
         <span>Actually: <strong>${fmt(t.p50_min)}</strong> (${fmt(t.p10_min)} to ${fmt(t.p90_min)})</span>
         ${t.p_done_today != null ? `<span>Chance you finish today: <strong>${Math.round(t.p_done_today * 100)}%</strong></span>` : ""}
       </div>
+      ${t.swallow_risk ? `<div class="swallow">This one can swallow your day. Set a timer before you start.</div>` : ""}
       ${t.why.length ? `<div class="why">${t.why.map(w => `<span>${esc(w)}</span>`).join("")}</div>` : ""}
     </div>`;
   };
@@ -217,13 +236,43 @@ $("#logForm").onsubmit = async e => {
   const f = new FormData(e.target), st = $("#logStatus");
   const body = {profile: $("#profile").value, task: f.get("task"), kind: f.get("kind"),
     guess_min: f.get("guess_min") ? +f.get("guess_min") : null, actual_min: +f.get("actual_min"),
-    dreaded: f.has("dreaded"), done_same_day: f.has("done_same_day")};
+    dreaded: f.has("dreaded"), done_same_day: f.has("done_same_day"),
+    open_id: f.get("open_id") ? +f.get("open_id") : null};
   const r = await fetch("/api/log", {method: "POST", headers: headers(), body: JSON.stringify(body)});
   const data = await r.json();
   st.className = r.ok ? "status" : "status err";
   st.textContent = r.ok ? `Saved. Your next plan uses ${data.history_rows} past tasks.` : (data.detail || "Couldn't save that. Try again.");
-  if (r.ok) e.target.reset();
+  if (r.ok) { e.target.reset(); loadPlate(); }
 };
+
+const ago = iso => { const d = Math.floor((Date.now() - new Date(iso)) / 864e5); return d <= 0 ? "today" : d === 1 ? "since yesterday" : `for ${d} days`; };
+async function loadPlate() {
+  const r = await fetch(`/api/open?profile=${$("#profile").value}`, {headers: headers()});
+  if (!r.ok) return;
+  const {open} = await r.json();
+  $("#plate").hidden = false;
+  $("#plateCount").textContent = open.length ? String(open.length) : "";
+  $("#plateList").innerHTML = open.length ? open.map(t => `<li class="${t.kind === "social" ? "person" : ""}">
+      <span class="t">${esc(t.title)}</span><span class="age">${ago(t.created_at)}</span>
+      <button class="quiet" type="button" data-id="${t.id}" data-title="${esc(t.title)}" data-kind="${t.kind}" data-guess="${t.guess_min ?? ""}" data-dreaded="${t.dreaded}">Done</button></li>`).join("")
+    : `<p class="empty">Nothing waiting. Anything you dump below stays here until you tick it off.</p>`;
+}
+$("#plateList").onclick = e => {
+  const b = e.target.closest("button[data-id]"); if (!b) return;
+  const f = $("#logForm"), d = $("details.log");
+  f.task.value = b.dataset.title; f.kind.value = b.dataset.kind; f.guess_min.value = b.dataset.guess;
+  f.dreaded.checked = b.dataset.dreaded === "1"; f.open_id.value = b.dataset.id;
+  d.open = true; f.actual_min.focus();
+  d.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+};
+$("#profile").addEventListener("change", loadPlate);
+fetch("/api/health").then(r => r.json()).then(h => {
+  if (h.friend_ready) $("#friendOpt").hidden = false;
+  $("#where").textContent = h.parser_backend === "ollama"
+    ? "Your words are read by a small open model fine-tuned for this, and your history by TabPFN. Both run on this server; nothing goes to an AI company."
+    : "Your words are read by a small open model fine-tuned for this (served from Tinker for now), and your history by TabPFN on this server.";
+});
+loadPlate();
 </script>
 </body>
 </html>

@@ -52,6 +52,7 @@ class DumpIn(BaseModel):
 
 class LogIn(BaseModel):
     profile: str = "demo"
+    open_id: int | None = None
     task: str
     kind: str
     guess_min: int | None = None
@@ -81,6 +82,9 @@ def plan(body: DumpIn, x_passphrase: str | None = Header(default=None)):
                      why=fc.why(rows.iloc[i]))
             for i, t in enumerate(tasks)
         ]
+        for f in forecasts:
+            f.swallow_risk = f.p90_min >= 0.5 * body.free_min
+        db.remember(body.profile, tasks)
         p = make_plan(forecasts, [t.deadline for t in tasks], [t.optional for t in tasks], body.free_min)
     return {"plan": p, "parse_latency_s": round(parsed.latency_s, 2), "history_rows": len(fc.history)}
 
@@ -94,12 +98,21 @@ def log(body: LogIn, x_passphrase: str | None = Header(default=None)):
         "actual_min": body.actual_min, "done_same_day": int(body.done_same_day), "start_hour": now.hour,
         "dreaded": int(body.dreaded), "left_house": int(body.left_house), "has_deadline": 0,
     })
+    if body.open_id is not None:
+        db.close_task(body.profile, body.open_id)
     return {"ok": True, "history_rows": len(load_history(str(PROFILES[body.profile]))) + len(db.logged_rows(body.profile))}
+
+
+@app.get("/api/open")
+def open_list(profile: str = "demo", x_passphrase: str | None = Header(default=None)):
+    check_profile(profile, x_passphrase)
+    return {"open": db.open_tasks(profile)}
 
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "parser_backend": os.getenv("PARSER_BACKEND", "ollama")}
+    return {"ok": True, "parser_backend": os.getenv("PARSER_BACKEND", "ollama"),
+            "friend_ready": PROFILES["friend"].exists()}
 
 
 @app.get("/")

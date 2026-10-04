@@ -28,6 +28,7 @@ class Forecast(BaseModel):
     p90_min: float
     p_done_today: Optional[float]
     why: list[str]
+    swallow_risk: bool = False  # p90 could eat half his free time (hyperfocus)
 
 
 class Plan(BaseModel):

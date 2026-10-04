@@ -72,7 +72,10 @@ class Forecaster:
         if len(same) >= 3 and same["guess_min"].notna().any():
             r = float(np.nanmedian(same["actual_min"] / same["guess_min"]))
             if math.isfinite(r) and r > 1.2:
-                out.append(f"{row['kind']} tasks take you ~{r:.1f}x your guess")
+                if np.isnan(row["guess_min"]):
+                    out.append(f"{row['kind']} tasks usually run ~{r:.1f}x longer than you plan")
+                else:
+                    out.append(f"{row['kind']} tasks take you ~{r:.1f}x your guess")
         if row["dreaded"] and h["dreaded"].sum() >= 3:
             d = h.groupby("dreaded")["actual_min"].median()
             if 1 in d and 0 in d and d[1] > d[0]:
