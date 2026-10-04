@@ -19,7 +19,8 @@ from dotenv import load_dotenv
 from app.parser import TinkerParser, render_prompt
 
 load_dotenv()
-TEACHER = "Qwen/Qwen3.5-397B-A17B"
+TEACHER = "Qwen/Qwen3.5-397B-A17B"   # labels (quality matters)
+WRITER = "Qwen/Qwen3.6-35B-A3B"      # writes dumps (cheap, varied)
 
 SCENARIOS = [
     "a uni student the night before a deadline", "a lazy sunday with chores piling up",
@@ -45,11 +46,11 @@ def write_dump(sampler, tok, seeds: list[str]) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=400)
-    ap.add_argument("--seeds", default="data/private/style_seeds.txt")
+    ap.add_argument("--seeds", default="data/synthetic/style_seeds_generic.txt")
     ap.add_argument("--out", default="data/synthetic/train.jsonl")
     a = ap.parse_args()
     seeds = [s.strip() for s in Path(a.seeds).read_text().split("---") if s.strip()]
-    sampler = tinker.ServiceClient().create_sampling_client(base_model=TEACHER)
+    sampler = tinker.ServiceClient().create_sampling_client(base_model=WRITER)
     tok = sampler.get_tokenizer()
     labeler = TinkerParser(TEACHER)
 
